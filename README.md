@@ -32,6 +32,14 @@ cd hermes-feishu
 hermes update
 ```
 
+If you're updating from inside a Feishu conversation, strongly prefer the gateway-aware command instead:
+
+```bash
+hermes update --gateway
+```
+
+or the `/update` slash command in Feishu (which runs `--gateway` internally).
+
 ### Data safety
 
 This fork only changes code — it does **not** touch your existing Hermes data (config, sessions, memory, skills, cron jobs). Still, before switching from the official build, back up your Hermes home first:
