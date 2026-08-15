@@ -20,10 +20,27 @@
 
 ```bash
 git clone https://github.com/lancecheney/hermes-feishu.git
-# 默认分支 main 即已集成上述修复
+cd hermes-feishu
+# 按正常方式安装运行 hermes —— 默认分支 main 已集成上述修复
 ```
 
-## 同步策略
+### 更新
+
+`main` 就是飞书优化版，所以标准的更新命令直接可用：
+
+```bash
+hermes update
+```
+
+### 数据安全
+
+本 fork 只改代码，**不会**动你已有的 Hermes 数据（配置、会话、记忆、技能、cron 任务）。不过从官方版切换前，建议先备份 Hermes 目录：
+
+```bash
+cp -r ~/.hermes ~/.hermes.bak
+```
+
+## 同步策略（维护者）
 
 - `main`：默认分支 = 上游 `main` + 上述修复
 - `upstream-main`：上游 `main` 的纯净镜像
