@@ -32,6 +32,14 @@ cd hermes-feishu
 hermes update
 ```
 
+如果是在飞书对话里更新，强烈建议改用 gateway 模式：
+
+```bash
+hermes update --gateway
+```
+
+或直接在飞书里用 `/update` 斜杠命令（内部就是 `--gateway` 模式）。
+
 ### 数据安全
 
 本 fork 只改代码，**不会**动你已有的 Hermes 数据（配置、会话、记忆、技能、cron 任务）。不过从官方版切换前，建议先备份 Hermes 目录：
