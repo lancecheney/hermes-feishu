@@ -26,19 +26,13 @@ cd hermes-feishu
 
 ### Update
 
-`main` is the Feishu-optimized build, so the standard update command just works:
-
-```bash
-hermes update
-```
-
-If you're updating from inside a Feishu conversation, strongly prefer the gateway-aware command instead:
+`main` is the Feishu-optimized build. Update via the gateway-aware command:
 
 ```bash
 hermes update --gateway
 ```
 
-or the `/update` slash command in Feishu (which runs `--gateway` internally).
+or the `/update` slash command inside Feishu (which runs `--gateway` internally).
 
 ### Data safety
 
