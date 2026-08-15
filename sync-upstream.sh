@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 # sync-upstream.sh — sync lancecheney/hermes-feishu with upstream NousResearch/hermes-agent
 #
-# Keeps `main` as a pristine mirror of upstream/main, rebases each pr/* branch and
-# the `meta` branch (fork-specific files) on top of it, rebuilds the `feishu`
-# integration branch, then force-pushes the result.
+# Keeps `upstream-main` as a pristine mirror of upstream/main, rebases each pr/*
+# branch and the `meta` branch (fork-specific files) on top of it, rebuilds the
+# `main` integration branch (the Feishu-optimized build), then force-pushes.
 # Run from anywhere inside the repo with a clean working tree.
 
 set -euo pipefail
@@ -40,8 +40,8 @@ list_conflicts() {
 echo "==> fetching upstream"
 git fetch upstream
 
-echo "==> advancing pristine main mirror"
-git checkout -q main
+echo "==> advancing pristine upstream-main mirror"
+git checkout -q upstream-main
 git reset --hard upstream/main
 
 echo "==> rebasing pr/* branches onto upstream/main"
@@ -81,12 +81,12 @@ if git rev-parse --verify --quiet meta >/dev/null; then
   fi
 fi
 
-echo "==> rebuilding feishu integration branch"
-git checkout -q feishu
+echo "==> rebuilding main integration branch"
+git checkout -q main
 git reset --hard upstream/main
 for b in $(git for-each-ref --format='%(refname:short)' refs/heads/pr/); do
   if ! git merge --no-edit "$b" >/tmp/sync-merge.log 2>&1; then
-    echo "error: merge conflict integrating $b into feishu" >&2
+    echo "error: merge conflict integrating $b into main" >&2
     list_conflicts
     tail -n 12 /tmp/sync-merge.log | sed 's/^/      /' >&2
     echo "    resolve conflicts, then:  git add <files> && git merge --continue" >&2
@@ -96,7 +96,7 @@ for b in $(git for-each-ref --format='%(refname:short)' refs/heads/pr/); do
 done
 if git rev-parse --verify --quiet meta >/dev/null; then
   if ! git merge --no-edit meta >/tmp/sync-merge-meta.log 2>&1; then
-    echo "error: merge conflict integrating meta into feishu" >&2
+    echo "error: merge conflict integrating meta into main" >&2
     list_conflicts
     tail -n 12 /tmp/sync-merge-meta.log | sed 's/^/      /' >&2
     echo "    resolve conflicts, then:  git add <files> && git merge --continue" >&2
@@ -106,8 +106,8 @@ if git rev-parse --verify --quiet meta >/dev/null; then
 fi
 
 echo "==> pushing"
+git push origin upstream-main --force-with-lease
 git push origin main --force-with-lease
-git push origin feishu --force-with-lease
 for b in $(git for-each-ref --format='%(refname:short)' refs/heads/pr/); do
   git push origin "$b" --force-with-lease
 done
@@ -133,6 +133,6 @@ for b in $(git for-each-ref --format='%(refname:short)' refs/heads/pr/); do
   printf '  %-12s PR #%s : %s\n' "$b" "$n" "$st"
 done
 
-git checkout -q feishu
+git checkout -q main
 echo ""
-echo "done — feishu is at $(git rev-parse --short HEAD)"
+echo "done — main is at $(git rev-parse --short HEAD)"
