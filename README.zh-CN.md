@@ -26,13 +26,7 @@ cd hermes-feishu
 
 ### 更新
 
-`main` 就是飞书优化版，所以标准的更新命令直接可用：
-
-```bash
-hermes update
-```
-
-如果是在飞书对话里更新，强烈建议改用 gateway 模式：
+`main` 就是飞书优化版。更新请用 gateway 模式：
 
 ```bash
 hermes update --gateway
