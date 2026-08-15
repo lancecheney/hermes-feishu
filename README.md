@@ -23,14 +23,14 @@ This repo tracks upstream `main`, **pre-merges Feishu-related fix PRs that upstr
 
 ```bash
 git clone https://github.com/lancecheney/hermes-feishu.git
-# 默认分支 feishu 即已集成上述修复
-# default branch `feishu` already includes the fixes above
+# 默认分支 main 即已集成上述修复
+# default branch `main` already includes the fixes above
 ```
 
 ## 同步策略 / Sync strategy
 
-- `main`：上游 `main` 的纯净镜像 / pristine mirror of upstream `main`
-- `feishu`：默认分支 = 上游 `main` + 上述修复 / default branch = upstream `main` + the fixes above
+- `main`：默认分支 = 上游 `main` + 上述修复（飞书优化版）/ default branch = upstream `main` + the fixes above
+- `upstream-main`：上游 `main` 的纯净镜像 / pristine mirror of upstream `main`
 - 每个上游 PR 对应一个 `pr/<编号>` 分支 / each upstream PR maps to a `pr/<number>` branch
 
 详见 / See [FEISHU-FORK.md](FEISHU-FORK.md)。上游完整文档 / Upstream docs: [hermes-agent docs](https://hermes-agent.nousresearch.com/docs/)。
