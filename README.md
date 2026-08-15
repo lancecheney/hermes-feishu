@@ -20,10 +20,27 @@ This repo tracks upstream `main`, **pre-merges Feishu-related fix PRs that upstr
 
 ```bash
 git clone https://github.com/lancecheney/hermes-feishu.git
-# default branch `main` already includes the fixes above
+cd hermes-feishu
+# install & run hermes as usual — the default branch `main` already includes the fixes
 ```
 
-## Sync strategy
+### Update
+
+`main` is the Feishu-optimized build, so the standard update command just works:
+
+```bash
+hermes update
+```
+
+### Data safety
+
+This fork only changes code — it does **not** touch your existing Hermes data (config, sessions, memory, skills, cron jobs). Still, before switching from the official build, back up your Hermes home first:
+
+```bash
+cp -r ~/.hermes ~/.hermes.bak
+```
+
+## Sync strategy (maintainer)
 
 - `main`: default branch = upstream `main` + the fixes above
 - `upstream-main`: pristine mirror of upstream `main`
