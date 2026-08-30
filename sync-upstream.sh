@@ -44,10 +44,56 @@ echo "==> advancing pristine upstream-main mirror"
 git checkout -q upstream-main
 git reset --hard upstream/main
 
+refresh_pr_branch_from_github() {
+  local branch=$1 number head_repo head_ref head_sha state row fetched_sha
+
+  number="${branch#pr/}"
+  if ! command -v gh >/dev/null 2>&1; then
+    echo "error: gh is required to refresh $branch from GitHub" >&2
+    return 1
+  fi
+
+  if ! row=$(gh api "repos/NousResearch/hermes-agent/pulls/$number" \
+      --jq '[.state, .head.repo.full_name, .head.ref, .head.sha] | @tsv'); then
+    echo "error: cannot read GitHub PR #$number" >&2
+    return 1
+  fi
+  IFS=$'\t' read -r state head_repo head_ref head_sha <<<"$row"
+  if [ "$state" != "open" ]; then
+    echo "error: GitHub PR #$number is $state; refusing to refresh $branch" >&2
+    return 1
+  fi
+  if [ -z "$head_repo" ] || [ -z "$head_ref" ] || [ -z "$head_sha" ]; then
+    echo "error: GitHub PR #$number has incomplete head information" >&2
+    return 1
+  fi
+
+  echo "    refreshing $branch from $head_repo:$head_ref ($head_sha)"
+  if ! git fetch fork "+refs/heads/$head_ref:refs/remotes/fork/pr/$number" \
+      >/tmp/sync-fetch-pr-$number.log 2>&1; then
+    echo "error: cannot fetch GitHub head for PR #$number" >&2
+    cat "/tmp/sync-fetch-pr-$number.log" >&2
+    return 1
+  fi
+  fetched_sha="$(git rev-parse "refs/remotes/fork/pr/$number")"
+  if [ "$fetched_sha" != "$head_sha" ]; then
+    echo "error: fetched PR #$number SHA $fetched_sha differs from GitHub SHA $head_sha" >&2
+    return 1
+  fi
+
+  # The GitHub PR head is authoritative. This intentionally discards stale
+  # local copies of the same PR branch before the integration rebase.
+  git reset --hard "refs/remotes/fork/pr/$number" >/dev/null
+}
+
 echo "==> rebasing pr/* branches onto upstream/main"
 merged_branches=()
 for b in $(git for-each-ref --format='%(refname:short)' refs/heads/pr/); do
   git checkout -q "$b"
+  if ! refresh_pr_branch_from_github "$b"; then
+    echo "error: could not refresh $b from GitHub" >&2
+    exit 1
+  fi
   if git rebase upstream/main >/tmp/sync-rebase.log 2>&1; then
     if [ -z "$(git rev-list upstream/main.."$b")" ]; then
       merged_branches+=("$b")
