@@ -69,9 +69,13 @@ refresh_pr_branch_from_github() {
   fi
 
   echo "    refreshing $branch from $head_repo:$head_ref ($head_sha)"
-  if ! git fetch fork "+refs/heads/$head_ref:refs/remotes/fork/pr/$number" \
+  # The PR head may live in a contributor fork rather than lancecheney/hermes-agent.
+  # Fetch the authoritative repository returned by GitHub instead of assuming the
+  # local `fork` remote owns every PR branch.
+  if ! git fetch "https://github.com/$head_repo.git" \
+      "+refs/heads/$head_ref:refs/remotes/fork/pr/$number" \
       >/tmp/sync-fetch-pr-$number.log 2>&1; then
-    echo "error: cannot fetch GitHub head for PR #$number" >&2
+    echo "error: cannot fetch GitHub head for PR #$number from $head_repo" >&2
     cat "/tmp/sync-fetch-pr-$number.log" >&2
     return 1
   fi
